@@ -1,0 +1,165 @@
+#  Author: Thangdv
+#  Date: 2020-12-24
+#
+#  https://github.com/
+#
+#  NOTE: Change volumes config to your_path
+#
+#  Project includes HDFS-YARN-HADOOP/NIFI/SPARK-ZEPPELIN/ELASTICSEARCH-KIBANA
+#  How to run: docker stack deploy -c docker-compose.yml cluser_name
+
+version: "3.7"
+services:
+  #-----------------Master node
+  hadoop-master:
+    image: thangdv26/hadoop:latest
+    hostname: hadoop-master
+    deploy:
+      placement:
+        constraints: [node.hostname == thangdv]
+    ports:
+      - 9000:9000
+      - 8088:8088
+      - 8032:8032
+      - 9870:9870
+    volumes:
+      - hadoop-master:/dfs
+    extra_hosts:
+      - "hadoop-slave:10.0.0.1"
+      - "spark-master:10.0.0.2"
+
+  nifi:
+    image: thangdv26/nifi-scrapy:latest
+    hostname: nifi
+    deploy:
+      placement:
+        constraints: [node.hostname == thangdv]
+    ports:
+      - 28080:8080
+    volumes:
+      - nifi-conf:/opt/nifi/conf
+      - nifi-log:/opt/nifi/logs
+      - nifi-crawler:/opt/nifi/Investing-Crawler
+    extra_hosts:
+      - "hadoop-master:10.10.0.1"
+
+  spark-master:
+    image: thangdv26/spark:latest
+    hostname: spark-master
+    ports:
+      - 4040:4040
+      - 7077:7077
+      - 8080:8080
+      - 18080:18080
+    deploy:
+      placement:
+        constraints: [node.hostname == thangdv]
+    extra_hosts:
+      - "hadoop-master:10.10.0.1"
+      - "spark-worker:10.10.0.1"
+      - "host.docker.internal:host-gateway"
+
+  # elastic1:
+  #     image: elasticsearch:7.12.1
+  #     hostname: es01
+  #     environment:
+  #         - node.name=es01
+  #         - node.master=true
+  #         - cluster.name=cluster
+  #         - discovery.seed_hosts=es02
+  #         - bootstrap.memory_lock=true
+  #         - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+  #     ulimits:
+  #         memlock:
+  #             soft: -1
+  #             hard: -1
+  #     ports:
+  #         - 9200:9200
+  #     deploy:
+  #         placement:
+  #             constraints: [node.hostname == thangdv]
+  #     # networks:
+  #     #     - my-net
+  #     volumes:
+  #         - elastic-1-data:/usr/share/elasticsearch/data
+  #     extra_hosts:
+  #         - "es02:10.10.0.1"
+
+  #-----------------Slave1 node
+  hadoop-slave:
+    image: thangdv26/hadoop:latest
+    hostname: hadoop-slave
+    deploy:
+      placement:
+        constraints: [node.hostname == pc1]
+    volumes:
+      - hadoop-slave:/dfs
+    extra_hosts:
+      - "hadoop-master:10.10.0.1"
+      - "spark-master: 10.0.0.2"
+
+  spark-worker:
+    image: thangdv26/spark:latest
+    hostname: spark-worker
+    deploy:
+      placement:
+        constraints: [node.hostname == pc1]
+    extra_hosts:
+      - "spark-master:10.10.0.1"
+
+  # elastic2:
+  #     image: elasticsearch:7.12.1
+  #     hostname: es02
+  #     environment:
+  #         - node.name=es02
+  #         - cluster.name=cluster
+  #         - discovery.seed_hosts=es01
+  #         - bootstrap.memory_lock=true
+  #         - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+  #     ulimits:
+  #         memlock:
+  #             soft: -1
+  #             hard: -1
+  #     ports:
+  #         - 9201:9200
+  #     deploy:
+  #         placement:
+  #             constraints: [node.hostname == pc1]
+  #     # networks:
+  #     #     - my-net
+  #     volumes:
+  #         - elastic-2-data:/usr/share/elasticsearch/data
+  #     extra_hosts:
+  #         - "es01:10.10.0.1"
+
+volumes:
+  hadoop-master:
+    driver: local
+    driver_opts:
+      type: bind
+      device: /mnt/4E9A200D9A1FF067/University/20202/GR/data/hadoop
+      o: bind
+  hadoop-slave:
+    driver: local
+    driver_opts:
+      type: bind
+      device: /opt/data/hadoop/data
+      o: bind
+  nifi-crawler:
+    driver: local
+    driver_opts:
+      type: bind
+      device: /mnt/4E9A200D9A1FF067/University/20202/GR/data/nifi/crawler
+      o: bind
+  nifi-log:
+    driver: local
+    driver_opts:
+      type: bind
+      device: /mnt/4E9A200D9A1FF067/University/20202/GR/data/nifi/logs
+      o: bind
+  nifi-conf:
+    driver: local
+    driver_opts:
+      type: bind
+      device: /mnt/4E9A200D9A1FF067/University/20202/GR/data/nifi/conf
+      o: bind

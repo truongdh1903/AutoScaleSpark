@@ -1,0 +1,43 @@
+stock_daily: {
+	"currId": "238"
+	"date": "1604620800", 
+	"price": "157.74", 
+	"open_price": "156.33", 
+	"high": "158.47", 
+	"low": "154.52", 
+	"vol": "8995560", 
+	"change": "0.41%", 
+}
+
+company_info: {
+	"name": "Citigroup Inc", 
+	"currId": "241", 
+	"short_name": "Citigroup", 
+	"avg_volume": "26.07M", 
+	"market_cap": "101.31B", 
+	"revenue": "43.41B", 
+	"p_e_ratio": "9.51", 
+	"beta": "1.84"
+}
+
+
+{
+	"company_id": 1,
+	"company_name": "Citigroup Inc",
+	"short_name": "Citigroup",
+	"country": "Viet Nam",
+	"avg_volumn": 26.07,
+	"market_cap": 101.31,
+	"revenue": 43.41,
+	"p_e_ratio": 9.51,
+	"price_date": [
+		"date": 2021-05-14,
+		"price": 157.74, 
+		"open_price": 156.33, 
+		"high": 158.47, 
+		"low": 154.52, 
+		"vol": 8995560, 
+		"change": 0.41,
+	]
+}
+
